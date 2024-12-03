@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: order-service
+  cloud:
+    config:
+      enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      username: default
+      password: systempass
+
+  datasource:
+    url: jdbc:postgresql://${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 19092
+
+service:
+  jwt:
+    access-expiration: 3600000
+    secret-key: ${SECRET_KEY}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
+  tracing:
+    sampling:
+      probability: 1.0
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        failureRateThreshold: 50  # \uC2E4\uD328 \uBE44\uC728 \uAE30\uC900
+        permittedNumberOfCallsInHalfOpenState: 3  # Half-Open \uC0C1\uD0DC\uC5D0\uC11C \uD5C8\uC6A9\uB418\uB294 \uD638\uCD9C \uC218
+        slidingWindowSize: 10  # \uC2AC\uB77C\uC774\uB529 \uC708\uB3C4\uC6B0 \uD06C\uAE30
+    instances:
+      productService:  # CircuitBreaker \uC778\uC2A4\uD134\uC2A4 \uC774\uB984
+        baseConfig: default
